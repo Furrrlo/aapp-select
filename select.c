@@ -36,49 +36,25 @@ int *our_select(int arr[], size_t len, int rank)
   }
 
   // Step 1
-  int *medians;
-  int **medians_ptrs;
   int len_mul_5 = len - (len % 5);
-
-  medians = (int*) malloc((len_mul_5 / 5) * sizeof(*medians));
-  if(!medians)
-    return NULL;
-  
-  medians_ptrs = (int**) malloc((len_mul_5 / 5) * sizeof(*medians_ptrs));
-  if(!medians_ptrs) {
-    free(medians);
-    return NULL;
-  }
+  // We need an array of len (len / 5) positions to store the medians
+  // Instead of allocating it, let's just move stuff to the start of the arr we already have
+  // This is the same thing that Wikipedia also does in its pseudocode of the method:
+  // 'move the medians of five-element subgroups to the first n/5 positions'
+  // https://en.wikipedia.org/wiki/Median_of_medians#Algorithm
+  int *medians = arr;
 
   for(size_t i = 0; i < len_mul_5; i += 5)
   {
     // For small arrays, this never fails so we can skip error handling
     int *median_ptr = median_of(&arr[i], 5);
-    medians[i / 5] = *median_ptr;
-    medians_ptrs[i / 5] = median_ptr;
+    // Put it in the medians array, preserving the substituted element
+    swap(&medians[i], median_ptr);
   }
   // Step 2
   int *medians_of_medians = median_of(medians, len_mul_5 / 5); 
   if(!medians_of_medians)
-  {
-    free(medians);
-    free(medians_ptrs);
     return NULL;
-  }
-
-  // Move the pointer from the 'medians' array back to the 'arr' array
-  int *original = medians_of_medians;
-  for(size_t i = 0; i < len_mul_5 / 5; ++i)
-  {
-    if(*medians_of_medians == *medians_ptrs[i])
-    {
-      medians_of_medians = medians_ptrs[i];
-      break;
-    }
-  }
-
-  free(medians);
-  free(medians_ptrs);
 
   // Step 3
   size_t pivot_idx = partition(arr, len, medians_of_medians);
