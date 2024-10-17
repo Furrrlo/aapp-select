@@ -2,6 +2,7 @@
 #include <stddef.h>
 
 int *our_select(int arr[], size_t len, int rank);
+int *rand_select(int arr[], size_t len, int rank);
 int *median_of(int arr[], size_t len);
 size_t partition(int arr[], size_t len, int *pivot);
 void swap(int *a1, int *a2);
@@ -82,6 +83,28 @@ int *our_select(int arr[], size_t len, int rank)
 int *median_of(int arr[], size_t const len)
 {
   return our_select(arr, len, len / 2);
+}
+
+int *rand_select(int arr[], size_t len, int rank)
+{
+  if(rank >= len)
+    return NULL;
+  
+  int *rand_pivot = &arr[rand() % len];
+  size_t pivot_idx = partition(arr, len, rand_pivot);
+  // k = pivot_idx = rank(x)
+  // i = rank
+  if(rank == pivot_idx) 
+    return &arr[pivot_idx];
+
+  if(rank < pivot_idx)
+    return our_select(arr, pivot_idx, rank);
+    
+  return our_select(
+      &arr[pivot_idx + 1], 
+      len - pivot_idx - 1, 
+      rank - pivot_idx - 1 /* the -1 was not on the slides */
+  );
 }
 
 size_t partition(int arr[], size_t len, int *pivot)

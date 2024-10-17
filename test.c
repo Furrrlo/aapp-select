@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctime>
 #include "test.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
@@ -8,6 +9,7 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 extern int *our_select(int arr[], size_t len, int rank);
+extern int *rand_select(int arr[], size_t len, int rank);
 extern int cmp_nums(const void *a1, const void *a2);
 
 TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_name) { 
@@ -21,7 +23,18 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
     return;
   }
   int actual = *actual_ptr;
-  
+
+  // Run using rand_select and check for potential failures
+  memcpy(a, initial, len * sizeof(*initial));
+  int *actual_rand_ptr = rand_select(a, len, rk);
+  if(!actual_rand_ptr) {
+    printf(ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET " '%s'\n"
+        "    Failed to run rand_select, could be an allocation failure\n",
+        test_name);
+    return;
+  }
+  int actual_rand = *actual_rand_ptr;
+
   // Run using qsort and extracting the rk-th element from the sorted array
   memcpy(a, initial, len * sizeof(*initial));
   qsort(a, len, sizeof(*a), cmp_nums);
@@ -29,9 +42,9 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
 
   // Compare the two results and print whether they match or not
   printf("%s" ANSI_COLOR_RESET " '%s'\n"
-         "    expected %d, got %d",
-         expected == actual ? ANSI_COLOR_GREEN "PASS" : ANSI_COLOR_RED "FAIL",
-         test_name, expected, actual);
+         "    expected %d, got deterministic %d and rand %d",
+         expected == actual && expected == actual_rand ? ANSI_COLOR_GREEN "PASS" : ANSI_COLOR_RED "FAIL",
+         test_name, expected, actual, actual_rand);
   
   if(len < 30) {
     printf(", sorted arr: {");
@@ -72,4 +85,7 @@ TEST_CASE_ON_STACK({
   fclose(rnd_fd);
 })
 
-TEST_MAIN()
+TEST_MAIN({
+    // seed the rand() function for use within rand_select()
+    srand(time(NULL));
+})

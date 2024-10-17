@@ -34,9 +34,10 @@
   __run_test(initial_arr, test_arr, len, __VA_ARGS__); \
 }
 
-#define TEST_MAIN() \
+#define TEST_MAIN(...) \
   int main() \
   { \
+    __VA_ARGS__ \
     for(size_t i = 0; i < test_cases_idx; ++i) \
       test_cases[i](); \
     return 0; \

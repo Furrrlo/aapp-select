@@ -1,8 +1,11 @@
 #include <benchmark/benchmark.h>
+#include <ctime>
 
 extern int *our_select(int arr[], size_t len, int rank);
+extern int *rand_select(int arr[], size_t len, int rank);
 
-static void BM_select(benchmark::State& state) {
+static void BM_select_impl(benchmark::State& state, bool use_rand_select)
+{
   // open the random fd
   FILE *rnd_fd = fopen("/dev/urandom", "r");
   if(!rnd_fd)
@@ -36,7 +39,9 @@ static void BM_select(benchmark::State& state) {
 
     state.ResumeTiming();
 
-    int *res = our_select(rnd_arr, len, rnd_pick);
+    int *res = use_rand_select
+      ? rand_select(rnd_arr, len, rnd_pick)
+      : our_select(rnd_arr, len, rnd_pick);
     if(res == NULL) {
       state.SkipWithError("Result is null, probably an allocation failure");
       break;
@@ -50,9 +55,26 @@ static void BM_select(benchmark::State& state) {
   fclose(rnd_fd);
 }
 
+static void BM_select(benchmark::State& state)
+{
+  BM_select_impl(state, false);
+}
+
+static void BM_rand_select(benchmark::State& state)
+{
+  // seed the rand() function for use within rand_select()
+  srand(time(NULL));
+  BM_select_impl(state, true);
+}
+
 BENCHMARK(BM_select)
   ->RangeMultiplier(2)
-  ->Range(10, 1 << 20)
+  ->Range(1 << 10, 1 << 20)
+  ->Complexity();
+
+BENCHMARK(BM_rand_select)
+  ->RangeMultiplier(2)
+  ->Range(1 << 10, 1 << 20)
   ->Complexity();
 
 BENCHMARK_MAIN();
