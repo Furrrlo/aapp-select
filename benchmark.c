@@ -35,7 +35,7 @@ static void BM_select_impl(benchmark::State& state, bool use_rand_select)
     // pick a random number which is inside the [0:len) range
     int rnd_pick;
     while(!fread(&rnd_pick, sizeof(rnd_pick), 1, rnd_fd));
-    rnd_pick = abs(rnd_pick) % len;
+    rnd_pick = 1 + (abs(rnd_pick) % len);
 
     state.ResumeTiming();
 
