@@ -56,6 +56,7 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
   printf("\n");
 })
 
+TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 2, "(less than 5)")
 TEST_CASE(TEST_ARR({ 3, 84, 2, 9, 12, 50 }), 4, "(len % 5 == 1)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 12, 15, 17, 23, 11, 98, 81, 60, 50 }), 5, "(len % 5 == 2)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 23, 11, 98, 81, 60, 50 }), 7, "(len % 5 == 3)")
