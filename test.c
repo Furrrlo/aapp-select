@@ -38,7 +38,7 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
   // Run using qsort and extracting the rk-th element from the sorted array
   memcpy(a, initial, len * sizeof(*initial));
   qsort(a, len, sizeof(*a), cmp_nums);
-  int expected = a[rk];
+  int expected = a[rk - 1];
 
   // Compare the two results and print whether they match or not
   printf("%s" ANSI_COLOR_RESET " '%s'\n"
@@ -57,6 +57,7 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
 })
 
 TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 2, "(less than 5)")
+TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 4, "(less than 5, last element)")
 TEST_CASE(TEST_ARR({ 3, 84, 2, 9, 12, 50 }), 4, "(len % 5 == 1)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 12, 15, 17, 23, 11, 98, 81, 60, 50 }), 5, "(len % 5 == 2)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 23, 11, 98, 81, 60, 50 }), 7, "(len % 5 == 3)")

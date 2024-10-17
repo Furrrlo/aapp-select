@@ -21,7 +21,7 @@ int cmp_num_ptrs(const void *a1, const void *a2)
 
 int *our_select(int arr[], size_t len, int rank)
 {
-  if(rank >= len)
+  if(rank <= 0 || rank > len)
     return NULL;
 
   // When doing a median on a small array, we can consider it
@@ -32,7 +32,7 @@ int *our_select(int arr[], size_t len, int rank)
     for(size_t i = 0; i < len; ++i)
       copy[i] = &arr[i];
     qsort(copy, len, sizeof(*copy), cmp_num_ptrs);
-    return copy[rank];
+    return copy[rank - 1];
   }
 
   // Step 1
@@ -82,46 +82,46 @@ int *our_select(int arr[], size_t len, int rank)
 
   // Step 3
   size_t pivot_idx = partition(arr, len, medians_of_medians);
+  size_t k = 1 + pivot_idx; // The algo on the slides uses 1-based arrays, let's add 1
   // Step 4
-  // k = pivot_idx = rank(x)
   // i = rank
-  if(rank == pivot_idx) 
+  if(rank == k)
     return &arr[pivot_idx];
 
-  if(rank < pivot_idx)
+  if(rank < k)
     return our_select(arr, pivot_idx, rank);
-    
+   
   return our_select(
       &arr[pivot_idx + 1], 
       len - pivot_idx - 1, 
-      rank - pivot_idx - 1 /* the -1 was not on the slides */
+      rank - k
   );
 }
 
 int *median_of(int arr[], size_t const len)
 {
-  return our_select(arr, len, len / 2);
+  return our_select(arr, len, 1 + len / 2);
 }
 
 int *rand_select(int arr[], size_t len, int rank)
 {
-  if(rank >= len)
+  if(rank <= 0 || rank > len)
     return NULL;
   
   int *rand_pivot = &arr[rand() % len];
   size_t pivot_idx = partition(arr, len, rand_pivot);
-  // k = pivot_idx = rank(x)
+  size_t k = 1 + pivot_idx; // The algo on the slides uses 1-based arrays, let's add 1
   // i = rank
-  if(rank == pivot_idx) 
+  if(rank == k) 
     return &arr[pivot_idx];
 
-  if(rank < pivot_idx)
+  if(rank < k)
     return our_select(arr, pivot_idx, rank);
     
   return our_select(
       &arr[pivot_idx + 1], 
       len - pivot_idx - 1, 
-      rank - pivot_idx - 1 /* the -1 was not on the slides */
+      rank - k
   );
 }
 
