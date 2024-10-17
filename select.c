@@ -58,7 +58,7 @@ int *our_select(int arr[], size_t len, int rank)
 
   // Step 3
   size_t pivot_idx = partition(arr, len, medians_of_medians);
-  size_t k = 1 + pivot_idx; // The algo on the slides uses 1-based arrays, let's add 1
+  size_t k = 1 + pivot_idx;
   // Step 4
   // i = rank
   if(rank == k)
@@ -86,7 +86,7 @@ int *rand_select(int arr[], size_t len, int rank)
   
   int *rand_pivot = &arr[rand() % len];
   size_t pivot_idx = partition(arr, len, rand_pivot);
-  size_t k = 1 + pivot_idx; // The algo on the slides uses 1-based arrays, let's add 1
+  size_t k = 1 + pivot_idx;
   // i = rank
   if(rank == k) 
     return &arr[pivot_idx];
