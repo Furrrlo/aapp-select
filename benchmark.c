@@ -50,12 +50,19 @@ public:
     // - https://en.wikipedia.org/wiki/Dutch_national_flag_problem
     // - https://en.wikipedia.org/wiki/Median_of_medians#Partition_helper_functions
     std::unordered_set<int> seen;
-    for(int i = 0; i < m_len; )
+    seen.reserve(m_len);
+
+    int nread = 0;
+    while(nread < m_len)
+      nread += fread(&m_rnd_arr[nread], sizeof(*m_rnd_arr), m_len - nread, m_rnd_fd);
+    
+    for(int i = 0; i < m_len; ++i)
     {
-      if(fread(&m_rnd_arr[i], sizeof(*m_rnd_arr), 1, m_rnd_fd) &&
-          (m_rnd_arr[i] = abs(m_rnd_arr[i]) % (m_len * 2) - m_len) &&
-          seen.find(m_rnd_arr[i]) == seen.end())
-        i++;
+      // Regen until not duped
+      while((m_rnd_arr[i] = abs(m_rnd_arr[i]) % (m_len * 2) - m_len) 
+          && seen.find(m_rnd_arr[i]) != seen.end()
+          && fread(&m_rnd_arr[i], sizeof(*m_rnd_arr), 1, m_rnd_fd));
+      seen.insert(m_rnd_arr[i]);
     }
     return m_rnd_arr;
   }
