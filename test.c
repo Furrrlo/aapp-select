@@ -12,28 +12,18 @@ extern int *our_select(int arr[], size_t len, int rank);
 extern int *rand_select(int arr[], size_t len, int rank);
 extern int cmp_nums(const void *a1, const void *a2);
 
-TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_name) { 
+TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_name) {
   // Run using our function and check for potential failures
   memcpy(a, initial, len * sizeof(*initial));
-  int *actual_ptr = our_select(a, len, rk);
-  if(!actual_ptr) {
-    printf(ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET " '%s'\n"
-        "    Failed to run our_select, could be an allocation failure\n",
-        test_name);
-    return;
-  }
-  int actual = *actual_ptr;
+  int *actual_det_ptr = our_select(a, len, rk);
+  bool actual_det_valid = actual_det_ptr != NULL;
+  int actual_det = actual_det_valid ? *actual_det_ptr : -1;
 
   // Run using rand_select and check for potential failures
   memcpy(a, initial, len * sizeof(*initial));
   int *actual_rand_ptr = rand_select(a, len, rk);
-  if(!actual_rand_ptr) {
-    printf(ANSI_COLOR_RED "FAIL" ANSI_COLOR_RESET " '%s'\n"
-        "    Failed to run rand_select, could be an allocation failure\n",
-        test_name);
-    return;
-  }
-  int actual_rand = *actual_rand_ptr;
+  bool actual_rand_valid = actual_rand_ptr != NULL;
+  int actual_rand = actual_rand_valid ? *actual_rand_ptr : -1;
 
   // Run using qsort and extracting the rk-th element from the sorted array
   memcpy(a, initial, len * sizeof(*initial));
@@ -41,21 +31,45 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
   int expected = a[rk - 1];
 
   // Compare the two results and print whether they match or not
-  printf("%s" ANSI_COLOR_RESET " '%s'\n"
-         "    expected %d, got deterministic %d and rand %d",
-         expected == actual && expected == actual_rand ? ANSI_COLOR_GREEN "PASS" : ANSI_COLOR_RED "FAIL",
-         test_name, expected, actual, actual_rand);
+  bool passed = actual_det_valid && expected == actual_det &&
+                actual_rand_valid && expected == actual_rand;
+  bool is_small_arr = len < 30;
+
+  printf("%s" ANSI_COLOR_RESET " '%s'\n",
+         passed ? ANSI_COLOR_GREEN "PASS" : ANSI_COLOR_RED "FAIL",
+         test_name);
   
-  if(len < 30) {
-    printf(", sorted arr: {");
+  if(is_small_arr) {
+    printf("    arr: { ");
+    for(size_t i = 0; i < len; ++i)
+      printf("%d, ", initial[i]);
+    printf("}\n");
+  }
+
+  printf("    rank: %d\n", rk);
+  
+  if(is_small_arr) {
+    printf("    sorted arr: { ");
     for(size_t i = 0; i < len; ++i)
       printf("%d, ", a[i]);
-    printf("}");
+    printf("}\n");
   }
   
+  printf("    expected %d, got deterministic ", expected);
+  if(actual_det_valid)
+    printf("%d", actual_det);
+  else
+    printf("NULL");
+
+  printf(" and rand ");
+  if(actual_rand_valid)
+    printf("%d", actual_rand);
+  else
+    printf("NULL");
   printf("\n");
 })
 
+TEST_CASE(TEST_ARR({ 4, 3, 4, 4, 4 }), 2, "(less than 5 with dupes)")
 TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 2, "(less than 5)")
 TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 4, "(less than 5, last element)")
 TEST_CASE(TEST_ARR({ 3, 84, 2, 9, 12, 50 }), 4, "(len % 5 == 1)")
