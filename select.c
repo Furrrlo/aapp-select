@@ -4,6 +4,7 @@
 int *our_select(int arr[], size_t len, int rank);
 int *rand_select(int arr[], size_t len, int rank);
 int *median_of(int arr[], size_t len);
+int *median_of_5(int arr[]);
 size_t partition(int arr[], size_t len, int *pivot);
 void swap(int *a1, int *a2);
 
@@ -46,8 +47,8 @@ int *our_select(int arr[], size_t len, int rank)
 
   for(size_t i = 0; i < len_mul_5; i += 5)
   {
-    // For small arrays, this never fails so we can skip error handling
-    int *median_ptr = median_of(&arr[i], 5);
+    // This never fails so we can skip error handling
+    int *median_ptr = median_of_5(&arr[i]);
     // Put it in the medians array, preserving the substituted element
     swap(&medians[i], median_ptr);
   }
@@ -74,7 +75,26 @@ int *our_select(int arr[], size_t len, int rank)
   );
 }
 
-int *median_of(int arr[], size_t const len)
+inline int *median_of_5(int a[])
+{
+  // https://www.ocf.berkeley.edu/%7Ewwu/cgi-bin/yabb/YaBB.cgi?board=riddles_cs;action=display;num=1061827085
+  // https://www.ocf.berkeley.edu/~wwu/YaBBAttachments/median_of_five.gif
+  // https://stackoverflow.com/a/481029
+  if(a[0] >= a[1]) swap(&a[0], &a[1]);
+  if(a[3] >= a[4]) swap(&a[3], &a[4]);
+  if(a[0] >= a[3]) swap(&a[0], &a[3]);
+  if(a[2] > a[1])
+  {
+    if(a[1] < a[3])
+      return a[2] < a[3] ? &a[2] : &a[3];
+    return a[1] < a[4] ? &a[1] : &a[4];
+  }
+  if(a[2] > a[3])
+    return a[2] < a[4] ? &a[2] : &a[4];
+  return a[1] < a[3] ? &a[1] : &a[3];
+}
+
+inline int *median_of(int arr[], size_t const len)
 {
   return our_select(arr, len, 1 + len / 2);
 }
@@ -120,7 +140,7 @@ size_t partition(int arr[], size_t len, int *pivot)
   return i;
 }
 
-void swap(int *a1, int *a2)
+inline void swap(int *a1, int *a2)
 {
   int tmp = *a1;
   *a1 = *a2;
