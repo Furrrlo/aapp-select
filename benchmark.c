@@ -1,4 +1,5 @@
 #include <benchmark/benchmark.h>
+#include <bits/stdc++.h>
 #include <ctime>
 
 extern int *our_select(int arr[], size_t len, int rank);
@@ -44,11 +45,18 @@ public:
   int *generate_random_array()
   {
     // generate a random array with nums in range [-len:len]
-    int nread = 0;
-    while(nread < m_len)
-      nread = fread(&m_rnd_arr[nread], sizeof(*m_rnd_arr), m_len - nread, m_rnd_fd);
-    for(size_t i = 0; i < m_len; ++i)
-      m_rnd_arr[i] = abs(m_rnd_arr[i]) % (m_len * 2) - m_len;
+    // we avoid duplicates as our implementation has only an O(n) guarantee when there are none,
+    // to also support O8n) with dupes we would need to use a three-way partition. See:
+    // - https://en.wikipedia.org/wiki/Dutch_national_flag_problem
+    // - https://en.wikipedia.org/wiki/Median_of_medians#Partition_helper_functions
+    std::unordered_set<int> seen;
+    for(int i = 0; i < m_len; )
+    {
+      if(fread(&m_rnd_arr[i], sizeof(*m_rnd_arr), 1, m_rnd_fd) &&
+          (m_rnd_arr[i] = abs(m_rnd_arr[i]) % (m_len * 2) - m_len) &&
+          seen.find(m_rnd_arr[i]) == seen.end())
+        i++;
+    }
     return m_rnd_arr;
   }
 };
