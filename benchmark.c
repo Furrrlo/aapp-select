@@ -44,9 +44,9 @@ public:
   int len() { return m_len; }
   int *generate_random_array()
   {
-    // generate a random array with nums in range [-len:len]
+    // generate a random array
     // we avoid duplicates as our implementation has only an O(n) guarantee when there are none,
-    // to also support O8n) with dupes we would need to use a three-way partition. See:
+    // to also support O(n) with dupes we would need to use a three-way partition. See:
     // - https://en.wikipedia.org/wiki/Dutch_national_flag_problem
     // - https://en.wikipedia.org/wiki/Median_of_medians#Partition_helper_functions
     std::unordered_set<int> seen;
@@ -59,8 +59,7 @@ public:
     for(int i = 0; i < m_len; ++i)
     {
       // Regen until not duped
-      while((m_rnd_arr[i] = abs(m_rnd_arr[i]) % (m_len * 2) - m_len) 
-          && seen.find(m_rnd_arr[i]) != seen.end()
+      while(seen.find(m_rnd_arr[i]) != seen.end()
           && fread(&m_rnd_arr[i], sizeof(*m_rnd_arr), 1, m_rnd_fd));
       seen.insert(m_rnd_arr[i]);
     }
