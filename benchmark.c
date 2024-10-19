@@ -75,15 +75,9 @@ static void BM_select_impl(SelectFixture *fixture, benchmark::State& state, bool
     int *rnd_arr = fixture->generate_random_array();
     state.ResumeTiming();
 
-    int *res = use_rand_select
+    benchmark::DoNotOptimize(use_rand_select
       ? rand_select(rnd_arr, len, 1 + (len / 2))
-      : our_select(rnd_arr, len, 1 + (len / 2));
-    if(res == NULL) {
-      state.SkipWithError("Result is null, probably an allocation failure");
-      break;
-    }
-
-    benchmark::DoNotOptimize(*res);
+      : our_select(rnd_arr, len, 1 + (len / 2)));
   }
 
   state.SetComplexityN(len);
