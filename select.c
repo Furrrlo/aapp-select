@@ -14,12 +14,6 @@ int cmp_nums(const void *a1, const void *a2)
   return (*(int*)a1 > *(int*)a2) ? 1 : (*(int*)a1 < *(int*)a2) ? -1 : 0;
 }
 
-int cmp_num_ptrs(const void *a1, const void *a2)
-{
-  // Do not use subtraction as it would overflow
-  return cmp_nums(*(int**)a1, *(int**)a2);
-}
-
 int *our_select(int arr[], size_t len, int rank)
 {
   if(rank <= 0 || rank > len)
@@ -29,11 +23,8 @@ int *our_select(int arr[], size_t len, int rank)
   // constant time and just use a sorting function to find it
   if(len <= 5)
   {
-    int *copy[5];
-    for(size_t i = 0; i < len; ++i)
-      copy[i] = &arr[i];
-    qsort(copy, len, sizeof(*copy), cmp_num_ptrs);
-    return copy[rank - 1];
+    qsort(arr, len, sizeof(*arr), cmp_nums);
+    return &arr[rank - 1];
   }
 
   // Step 1
