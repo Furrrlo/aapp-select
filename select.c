@@ -103,9 +103,9 @@ int *rand_select(int arr[], size_t len, int rank)
     return &arr[pivot_idx];
 
   if(rank < k)
-    return our_select(arr, pivot_idx, rank);
+    return rand_select(arr, pivot_idx, rank);
     
-  return our_select(
+  return rand_select(
       &arr[pivot_idx + 1], 
       len - pivot_idx - 1, 
       rank - k
