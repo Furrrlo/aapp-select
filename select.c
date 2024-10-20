@@ -19,9 +19,9 @@ int *our_select(int arr[], size_t len, int rank)
   if(rank <= 0 || rank > len)
     return NULL;
 
-  // When doing a median on a small array, we can consider it
+  // When doing selection on a small array, we can consider it
   // constant time and just use a sorting function to find it
-  if(len <= 5)
+  if(len < 5)
   {
     qsort(arr, len, sizeof(*arr), cmp_nums);
     return &arr[rank - 1];
