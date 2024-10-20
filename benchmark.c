@@ -4,6 +4,7 @@
 
 extern int *our_select(int arr[], size_t len, int rank);
 extern int *rand_select(int arr[], size_t len, int rank);
+extern int cmp_nums(const void *a1, const void *a2);
 
 class SelectFixture : public benchmark::Fixture
 {
@@ -67,7 +68,7 @@ public:
   }
 };
 
-static void BM_select_impl(SelectFixture *fixture, benchmark::State& state, bool use_rand_select)
+static void BM_select_impl(SelectFixture *fixture, benchmark::State& state, int fn)
 {
   int len = fixture->len();
   for (auto _ : state) {
@@ -75,23 +76,43 @@ static void BM_select_impl(SelectFixture *fixture, benchmark::State& state, bool
     int *rnd_arr = fixture->generate_random_array();
     state.ResumeTiming();
 
-    benchmark::DoNotOptimize(use_rand_select
-      ? rand_select(rnd_arr, len, 1 + (len / 2))
-      : our_select(rnd_arr, len, 1 + (len / 2)));
+    auto start = std::chrono::high_resolution_clock::now();
+    switch(fn) {
+    case 0: benchmark::DoNotOptimize(our_select(rnd_arr, len, 1 + (len / 2))); break;
+    case 1: benchmark::DoNotOptimize(rand_select(rnd_arr, len, 1 + (len / 2))); break;
+    case 2:
+      qsort(rnd_arr, len, sizeof(*rnd_arr), cmp_nums);
+      benchmark::DoNotOptimize(rnd_arr[1 + (len / 2)]);
+      break;
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed_seconds =
+      std::chrono::duration_cast<std::chrono::duration<double>>(
+        end - start);
+
+    state.SetIterationTime(elapsed_seconds.count());
   }
 
   state.SetComplexityN(len);
 }
 
-BENCHMARK_DEFINE_F(SelectFixture, BM_select)(benchmark::State& state) { BM_select_impl(this, state, false); }
+BENCHMARK_DEFINE_F(SelectFixture, BM_select)(benchmark::State& state) { BM_select_impl(this, state, 0); }
 BENCHMARK_REGISTER_F(SelectFixture, BM_select)
+  ->UseManualTime()
   ->RangeMultiplier(2)
   ->Range(1 << 2, 1 << 18)
   ->Complexity();
 
-
-BENCHMARK_DEFINE_F(SelectFixture, BM_rand_select)(benchmark::State& state) { BM_select_impl(this, state, true); }
+BENCHMARK_DEFINE_F(SelectFixture, BM_rand_select)(benchmark::State& state) { BM_select_impl(this, state, 1); }
 BENCHMARK_REGISTER_F(SelectFixture, BM_rand_select)
+  ->UseManualTime()
+  ->RangeMultiplier(2)
+  ->Range(1 << 2, 1 << 18)
+  ->Complexity();
+
+BENCHMARK_DEFINE_F(SelectFixture, BM_qsort)(benchmark::State& state) { BM_select_impl(this, state, 2); }
+BENCHMARK_REGISTER_F(SelectFixture, BM_qsort)
+  ->UseManualTime()
   ->RangeMultiplier(2)
   ->Range(1 << 2, 1 << 18)
   ->Complexity();
