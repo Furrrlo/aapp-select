@@ -19,7 +19,7 @@ b64:
 	tar --transform "s,^,select/," -czf - Makefile *.c *.h | base64 -w 0 && echo ""
 
 benchmark:
-	$(CC) -O2 select.c benchmark.c $(BENCH_CFLAGS) -o benchmark.out
+	$(CC) -O3 -march=native select.c benchmark.c $(BENCH_CFLAGS) -o benchmark.out
 	taskset -c 0 \
 		./benchmark.out \
 		--benchmark_out=benchmark.json \
