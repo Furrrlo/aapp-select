@@ -46,7 +46,7 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
     printf("}\n");
   }
 
-  printf("    rank: %d\n", rk);
+  printf("    len: %d, rank: %d\n", len, rk);
   
   if(is_small_arr) {
     printf("    sorted arr: { ");
@@ -69,15 +69,35 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
   printf("\n");
 })
 
-TEST_CASE(TEST_ARR({ 4, 3, 4, 4, 4 }), 2, "(less than 5 with dupes)")
 TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 2, "(less than 5)")
 TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 4, "(less than 5, last element)")
+TEST_CASE(TEST_ARR({ 3, 84, 12, 50 }), 1, "(less than 5, first element)")
+
 TEST_CASE(TEST_ARR({ 3, 84, 2, 9, 12, 50 }), 4, "(len % 5 == 1)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 12, 15, 17, 23, 11, 98, 81, 60, 50 }), 5, "(len % 5 == 2)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 23, 11, 98, 81, 60, 50 }), 7, "(len % 5 == 3)")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 17, 23, 11, 98, 81, 60, 50 }), 3, "(len % 5 == 4)")
+
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 17, 23, 11, 98, 81, 60, 50, 40, 6 }), 3, "ends up in the lower part of recursion")
 TEST_CASE(TEST_ARR({ 3, 7, 84, 2, 9, 12, 15, 17, 23, 11, 98, 81, 60, 50, 40, 6 }), 12, "ends up in the higher part of recursion")
+
+TEST_CASE(TEST_ARR({ 4, 3, 4, 4, 4 }), 2, "(less than 5 with dupes)")
+TEST_CASE(TEST_ARR({ 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4 }), 1, "(before dupes)")
+TEST_CASE(TEST_ARR({ 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 }), 20, "(after dupes)")
+TEST_CASE(TEST_ARR({ 
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+}), 1, "all duplicates, first element")
+TEST_CASE(TEST_ARR({
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+      4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
+}), 140, "all duplicates, last element")
 
 // Random testing with huge numbers
 TEST_CASE_ON_STACK({
