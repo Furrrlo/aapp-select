@@ -9,10 +9,10 @@ int *our_select(int arr[], size_t len, int rank);
 // of an array of len elements, that recursively randomly select a pivot 
 int *rand_select(int arr[], size_t len, int rank);
 
-// Used when we want to calculate the median of more than 5 elements
+// Used when we want to calculate the median of any amount of elements
 static int *median_of(int arr[], size_t len);
 
-// Used when we want to calculate the median of 5 or less
+// Used when we want to calculate the median of exactly 5 elements
 static int *median_of_5(int arr[]);
 
 // Implementation of the PARTITION method, used for partitioning the 
