@@ -117,6 +117,6 @@ BENCHMARK_REGISTER_F(SelectFixture, BM_qsort)
   ->UseManualTime()
   ->RangeMultiplier(2)
   ->Range(1 << 2, 1 << 18)
-  ->Complexity();
+  ->Complexity(benchmark::oNLogN);
 
 BENCHMARK_MAIN();
