@@ -30,7 +30,7 @@ TEST_INIT_RUNNER((int const *initial, int *a, int len, int rk, char const *test_
   qsort(a, len, sizeof(*a), cmp_nums);
   int expected = a[rk - 1];
 
-  // Compare the two results and print whether they match or not
+  // Compare the two results and print whether they match or not and additional info
   bool passed = actual_det_valid && expected == actual_det &&
                 actual_rand_valid && expected == actual_rand;
   bool is_small_arr = len < 30;

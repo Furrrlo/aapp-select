@@ -72,10 +72,12 @@ static void BM_select_impl(SelectFixture *fixture, benchmark::State& state, int 
 {
   int len = fixture->len();
   for (auto _ : state) {
+    // Pause timers to have a somewhat correct CPU time, even if they add a bit of overhead
     state.PauseTiming();
     int *rnd_arr = fixture->generate_random_array();
     state.ResumeTiming();
 
+    // Use manual timing to have an accurate real time, without the Pause/Resume overhead
     auto start = std::chrono::high_resolution_clock::now();
     switch(fn) {
     case 0: benchmark::DoNotOptimize(our_select(rnd_arr, len, 1 + (len / 2))); break;
