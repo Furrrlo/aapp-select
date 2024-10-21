@@ -3,10 +3,19 @@
 
 int *our_select(int arr[], size_t len, int rank);
 int *rand_select(int arr[], size_t len, int rank);
-int *median_of(int arr[], size_t len);
-int *median_of_5(int arr[]);
-size_t partition(int arr[], size_t len, int *pivot);
-void swap(int *a1, int *a2);
+
+static int *median_of(int arr[], size_t len);
+static int *median_of_5(int arr[]);
+static size_t partition(int arr[], size_t len, int *pivot);
+
+static void swap(int *a1, int *a2);
+static void sort_min_max(int *a1, int *a2);
+
+#define SWAP_IF(v1, v2, cond, a1, a2) {\
+  int v1 = *a1, v2 = *a2;\
+  *a2 = cond ? v1 : v2;\
+  *a1 = cond ? v2 : v1;\
+}
 
 int cmp_nums(const void *a1, const void *a2)
 {
@@ -71,18 +80,14 @@ inline int *median_of_5(int a[])
   // https://www.ocf.berkeley.edu/%7Ewwu/cgi-bin/yabb/YaBB.cgi?board=riddles_cs;action=display;num=1061827085
   // https://www.ocf.berkeley.edu/~wwu/YaBBAttachments/median_of_five.gif
   // https://stackoverflow.com/a/481029
-  if(a[0] >= a[1]) swap(&a[0], &a[1]);
-  if(a[3] >= a[4]) swap(&a[3], &a[4]);
-  if(a[0] >= a[3]) swap(&a[0], &a[3]);
-  if(a[2] > a[1])
-  {
-    if(a[1] < a[3])
-      return a[2] < a[3] ? &a[2] : &a[3];
-    return a[1] < a[4] ? &a[1] : &a[4];
-  }
-  if(a[2] > a[3])
-    return a[2] < a[4] ? &a[2] : &a[4];
-  return a[1] < a[3] ? &a[1] : &a[3];
+  // We do it branchless and hope it gets compiled with SIMD instructions
+  sort_min_max(&a[0], &a[1]);
+  sort_min_max(&a[3], &a[4]);
+  sort_min_max(&a[0], &a[3]);
+  sort_min_max(&a[1], &a[2]);
+  sort_min_max(&a[1], &a[3]);
+  sort_min_max(&a[2], &a[3]);
+  return &a[2];
 }
 
 inline int *median_of(int arr[], size_t const len)
@@ -114,19 +119,17 @@ int *rand_select(int arr[], size_t len, int rank)
 
 size_t partition(int arr[], size_t len, int *pivot)
 {
+  int p = *pivot;
   swap(arr, pivot);
-  pivot = arr;
 
   size_t i = 0;
-  for(size_t j = 1; j < len; j++)
+  for(size_t j = 1; j < len; ++j)
   {
-    if(arr[j] <= *pivot)
-    {
-      i++;
-      swap(&arr[j], &arr[i]);
-    }
-  } 
-  
+    // Make it branchless and hope it gets compiled using magic
+    i += arr[j] <= p;
+    SWAP_IF(a, b, a <= p, &arr[j], &arr[i]);
+  }
+
   swap(arr, &arr[i]);
   return i;
 }
@@ -136,4 +139,11 @@ inline void swap(int *a1, int *a2)
   int tmp = *a1;
   *a1 = *a2;
   *a2 = tmp;
+}
+
+static inline void sort_min_max(int *a1, int *a2)
+{
+  int a = *a1, b = *a2;
+  *a1 = a < b ? a : b;
+  *a2 = a < b ? b : a;
 }
