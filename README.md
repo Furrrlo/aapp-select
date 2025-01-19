@@ -1,5 +1,7 @@
 # Advanced Algorithm Challenge - Deterministic Select
 
+First challenge for the course "Advanced Algorithms and Parallel Programming" 2024/2025 @ PoliMi, focused on the first part of the course.
+
 Implement the deterministic algorithm for the Select-ith problem (see [the relevant slides](docs/lecture8-Select-ith.pdf))
 
 Material to be delivered:
